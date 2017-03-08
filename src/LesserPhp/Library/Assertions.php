@@ -27,12 +27,12 @@ class Assertions
 
     public function assertColor($value, $error = "expected color value")
     {
-        $color = $this->coerce->coerceColor($value);
+        $color = $this->coerce->coerceColorObject($value);
         if ($color === null) {
             throw new GeneralException($error);
         }
 
-        return $color;
+        return $color->toOldArray();
     }
 
     public function assertNumber($value, $error = "expecting number")

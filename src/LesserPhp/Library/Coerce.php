@@ -175,6 +175,7 @@ class Coerce
 	 * @param array|ColorInterface $value
 	 *
 	 * @return array|null
+	 * @deprecated
 	 */
 	public function coerceColor($value)
 	{
