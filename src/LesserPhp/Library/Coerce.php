@@ -171,38 +171,57 @@ class Coerce
     // coerce a value for use in color operation
     public function coerceColor($value)
     {
-        switch ($value[0]) {
-            case 'color':
-                return $value;
-            case 'raw_color':
-                $c = ["color", 0, 0, 0];
-                $colorStr = substr($value[1], 1);
-                $num = hexdec($colorStr);
-                $width = strlen($colorStr) === 3 ? 16 : 256;
+	    if ($value instanceof \LesserPhp\Color\ColorInterface) {
+		    return $value->toOldArray();
+	    }
+	    if (!isset($value[0])) {
+		    return null;
+	    }
 
-                for ($i = 3; $i > 0; $i--) { // 3 2 1
-                    $t = $num % $width;
-                    $num /= $width;
+	    $factory = new \LesserPhp\Color\Factory();
+	    $color   = null;
 
-                    $c[$i] = $t * (256 / $width) + $t * floor(16 / $width);
-                }
+	    switch ($value[0]) {
+		    case 'color':
+			    $color = $factory->rgbaFromArray($value);
+			    break;
 
-                return $c;
-            case 'keyword':
-                $name = $value[1];
-                if (isset(static::$cssColors[$name])) {
-                    $rgba = explode(',', static::$cssColors[$name]);
+		    case 'raw_color':
+			    $c        = ["color", 0, 0, 0];
+			    $colorStr = substr($value[1], 1);
+			    $num      = hexdec($colorStr);
+			    $width    = strlen($colorStr) === 3 ? 16 : 256;
 
-                    if (isset($rgba[3])) {
-                        return ['color', $rgba[0], $rgba[1], $rgba[2], $rgba[3]];
-                    }
+			    for ($i = 3; $i > 0; $i--) { // 3 2 1
+				    $t = $num % $width;
+				    $num /= $width;
 
-                    return ['color', $rgba[0], $rgba[1], $rgba[2]];
-                }
+				    $c[$i] = $t * (256 / $width) + $t * floor(16 / $width);
+			    }
 
-        }
+			    $color = $factory->rgbaFromArray($c);
+			    break;
 
-        return null;
+		    case 'keyword':
+			    $name = $value[1];
+			    if (isset(static::$cssColors[$name])) {
+				    $rgba = explode(',', static::$cssColors[$name]);
+
+				    if (isset($rgba[3])) {
+					    return ['color', $rgba[0], $rgba[1], $rgba[2], $rgba[3]];
+				    }
+
+				    $color = $factory->rgbaFromArray(['color', $rgba[0], $rgba[1], $rgba[2]]);
+				    break;
+			    }
+
+	    }
+
+	    if ($color instanceof \LesserPhp\Color\ColorInterface) {
+		    return $color->toOldArray();
+	    }
+
+	    return null;
     }
 
     // make something string like into a string
