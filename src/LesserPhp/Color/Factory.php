@@ -14,7 +14,6 @@ namespace LesserPhp\Color;
  *
  * @package LesserPhp
  */
-use LesserPhp\Exception\GeneralException;
 
 /**
  * Class Factory
@@ -42,14 +41,54 @@ class Factory
 	 * @param array $array
 	 *
 	 * @return Rgba
-	 * @throws GeneralException
+	 * @throws \InvalidArgumentException
 	 */
 	public function rgbaFromArray(array $array)
 	{
 		if (!in_array(count($array), [4, 5]) || $array[0] !== 'color') {
-			throw new GeneralException('Unknown color format');
+			throw new \InvalidArgumentException('Unknown color format');
 		}
 
 		return $this->rgba($array[1], $array[2], $array[3], (isset($array[4]) ? $array[4] : null));
+	}
+
+	/**
+	 * @param string $hexString Hexadecimal color code with optional leading #
+	 *
+	 * @return Rgba
+	 */
+	public function rgbaFromHexString($hexString)
+	{
+		// remove leading # if present
+		$hexString = ltrim($hexString, '#');
+
+		$channels = [0, 0, 0];
+		$num      = hexdec($hexString);
+		$base     = (strlen($hexString) === 3 ? 16 : 256);
+
+		for ($i = 2; $i >= 0; $i--) {
+			$t = $num % $base;
+			$num /= $base;
+
+			$channels[$i] = $t * (256 / $base) + $t * floor(16 / $base);
+		}
+
+		return $this->rgba($channels[0], $channels[1], $channels[2]);
+	}
+
+	/**
+	 * @param string $string
+	 *
+	 * @return Rgba
+	 * @throws \InvalidArgumentException
+	 */
+	public function rgbaFromCommaSeparatedString($string)
+	{
+		$array = explode(',', $string);
+		if (!in_array(count($array), [3, 4])) {
+			throw new \InvalidArgumentException('Unknown color format');
+		}
+
+		return $this->rgba($array[0], $array[1], $array[2], (isset($array[3]) ? $array[3] : null));
 	}
 }

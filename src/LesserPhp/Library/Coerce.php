@@ -1,6 +1,7 @@
 <?php
-
 namespace LesserPhp\Library;
+
+use LesserPhp\Color\ColorInterface;
 
 /**
  * lesserphp
@@ -168,61 +169,58 @@ class Coerce
     ];
 
 
-    // coerce a value for use in color operation
-    public function coerceColor($value)
-    {
-	    if ($value instanceof \LesserPhp\Color\ColorInterface) {
-		    return $value->toOldArray();
-	    }
-	    if (!isset($value[0])) {
-		    return null;
-	    }
+	/**
+	 * Coerce a value for use in color operation.
+	 *
+	 * @param array|ColorInterface $value
+	 *
+	 * @return array|null
+	 */
+	public function coerceColor($value)
+	{
+		$color = $this->coerceColorObject($value);
 
-	    $factory = new \LesserPhp\Color\Factory();
-	    $color   = null;
+		if ($color instanceof ColorInterface) {
+			return $color->toOldArray();
+		}
 
-	    switch ($value[0]) {
-		    case 'color':
-			    $color = $factory->rgbaFromArray($value);
-			    break;
+		return null;
+	}
 
-		    case 'raw_color':
-			    $c        = ["color", 0, 0, 0];
-			    $colorStr = substr($value[1], 1);
-			    $num      = hexdec($colorStr);
-			    $width    = strlen($colorStr) === 3 ? 16 : 256;
+	/**
+	 * Coerce value to color object.
+	 *
+	 * @param $value
+	 *
+	 * @return ColorInterface|null
+	 */
+	public function coerceColorObject($value)
+	{
+		if ($value instanceof ColorInterface) {
+			return $value;
+		}
+		if (!isset($value[0])) {
+			return null;
+		}
 
-			    for ($i = 3; $i > 0; $i--) { // 3 2 1
-				    $t = $num % $width;
-				    $num /= $width;
+		$factory = new \LesserPhp\Color\Factory();
+		$color   = null;
 
-				    $c[$i] = $t * (256 / $width) + $t * floor(16 / $width);
-			    }
+		switch ($value[0]) {
+			case 'color':
+				return $factory->rgbaFromArray($value);
 
-			    $color = $factory->rgbaFromArray($c);
-			    break;
+			case 'raw_color':
+				return $factory->rgbaFromHexString($value[1]);
 
-		    case 'keyword':
-			    $name = $value[1];
-			    if (isset(static::$cssColors[$name])) {
-				    $rgba = explode(',', static::$cssColors[$name]);
+			case 'keyword':
+				if (isset(static::$cssColors[$value[1]])) {
+					return $factory->rgbaFromCommaSeparatedString(static::$cssColors[$value[1]]);
+				}
+		}
 
-				    if (isset($rgba[3])) {
-					    return ['color', $rgba[0], $rgba[1], $rgba[2], $rgba[3]];
-				    }
-
-				    $color = $factory->rgbaFromArray(['color', $rgba[0], $rgba[1], $rgba[2]]);
-				    break;
-			    }
-
-	    }
-
-	    if ($color instanceof \LesserPhp\Color\ColorInterface) {
-		    return $color->toOldArray();
-	    }
-
-	    return null;
-    }
+		return null;
+	}
 
     // make something string like into a string
     public function coerceString($value)
