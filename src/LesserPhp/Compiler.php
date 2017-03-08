@@ -2146,6 +2146,11 @@ class Compiler
         $this->formatterName = $name;
     }
 
+	public function setFormatterClass($formatter)
+	{
+		$this->formatter = $formatter;
+    }
+
     /**
      * @return \LesserPhp\Formatter\FormatterInterface
      */
