@@ -1129,6 +1129,22 @@ class Compiler
      */
     public function compileValue(array $value)
     {
+	    if (!isset($value[0])) {
+		    throw new GeneralException('Missing value type');
+	    }
+
+	    $valueClassName = 'LesserPhp\Compiler\Value\\'.ucfirst($value[0]);
+	    if (class_exists($valueClassName)) {
+		    $options    = [
+			    'numberPrecision' => $this->numberPrecision,
+		    ];
+		    $valueClass = new $valueClassName($options);
+		    if ($valueClass instanceof \LesserPhp\Compiler\Value\AbstractValue) {
+			    $valueClass->initializeFromOldFormat($value);
+			    return $valueClass->getCompiled();
+		    }
+	    }
+
         switch ($value[0]) {
             case 'list':
                 // [1] - delimiter
