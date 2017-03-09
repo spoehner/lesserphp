@@ -19,70 +19,70 @@ use LesserPhp\Library\Coerce;
 
 abstract class AbstractValue
 {
-	/** @var Compiler */
-	protected $compiler;
-	/** @var Coerce */
-	protected $coerce;
+    /** @var Compiler */
+    protected $compiler;
+    /** @var Coerce */
+    protected $coerce;
 
-	protected $options = [
-		'numberPrecision' => null,
-		'compressColors'  => false,
-	];
+    protected $options = [
+        'numberPrecision' => null,
+        'compressColors'  => false,
+    ];
 
-	/**
-	 * AbstractValue constructor.
-	 *
-	 * @param Compiler $compiler
-	 * @param Coerce   $coerce
-	 * @param array    $options
-	 */
-	public function __construct(Compiler $compiler, Coerce $coerce, array $options = [])
-	{
-		$this->compiler = $compiler;
-		$this->coerce   = $coerce;
-		$this->options  = array_replace($this->options, $options);
-	}
+    /**
+     * AbstractValue constructor.
+     *
+     * @param Compiler $compiler
+     * @param Coerce   $coerce
+     * @param array    $options
+     */
+    public function __construct(Compiler $compiler, Coerce $coerce, array $options = [])
+    {
+        $this->compiler = $compiler;
+        $this->coerce   = $coerce;
+        $this->options  = array_replace($this->options, $options);
+    }
 
-	/**
-	 * @param Compiler $compiler
-	 * @param Coerce   $coerce
-	 * @param array    $options
-	 * @param array    $value
-	 *
-	 * @return self
-	 */
-	public static function factory(Compiler $compiler, Coerce $coerce, array $options, array $value)
-	{
-		$nameParts = explode('_', $value[0]);
-		$camelCase = array_reduce($nameParts, function($carry, $item){
-			return $carry.ucfirst($item);
-		}, '');
-		$valueClassName = 'LesserPhp\Compiler\Value\\'.$camelCase.'Value';
+    /**
+     * @param Compiler $compiler
+     * @param Coerce   $coerce
+     * @param array    $options
+     * @param array    $value
+     *
+     * @return self
+     */
+    public static function factory(Compiler $compiler, Coerce $coerce, array $options, array $value)
+    {
+        $nameParts      = explode('_', $value[0]);
+        $camelCase      = array_reduce($nameParts, function ($carry, $item) {
+            return $carry.ucfirst($item);
+        }, '');
+        $valueClassName = 'LesserPhp\Compiler\Value\\'.$camelCase.'Value';
 
-		if (class_exists($valueClassName)) {
-			$valueClass = new $valueClassName($compiler, $coerce, $options);
-			if ($valueClass instanceof self) {
-				$valueClass->initializeFromOldFormat($value);
+        if (class_exists($valueClassName)) {
+            $valueClass = new $valueClassName($compiler, $coerce, $options);
+            if ($valueClass instanceof self) {
+                $valueClass->initializeFromOldFormat($value);
 
-				return $valueClass;
-			}
-		}
+                return $valueClass;
+            }
+        }
 
-		throw new \UnexpectedValueException('unknown value type: '.$value[0]);
-	}
+        throw new \UnexpectedValueException('unknown value type: '.$value[0]);
+    }
 
-	/**
-	 * @return string
-	 */
-	abstract public function getCompiled();
+    /**
+     * @return string
+     */
+    abstract public function getCompiled();
 
-	/**
-	 * Initialize value from old array format.
-	 *
-	 * @param array $value
-	 *
-	 * @return void
-	 * @deprecated
-	 */
-	abstract public function initializeFromOldFormat(array $value);
+    /**
+     * Initialize value from old array format.
+     *
+     * @param array $value
+     *
+     * @return void
+     * @deprecated
+     */
+    abstract public function initializeFromOldFormat(array $value);
 }

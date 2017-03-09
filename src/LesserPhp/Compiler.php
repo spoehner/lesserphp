@@ -1128,25 +1128,25 @@ class Compiler
 	 * @return string
 	 * @throws GeneralException
 	 */
-	public function compileValue(array $value, array $options = [])
-	{
-		try {
-			if (!isset($value[0])) {
-				throw new GeneralException('Missing value type');
-			}
+    public function compileValue(array $value, array $options = [])
+    {
+        try {
+            if (!isset($value[0])) {
+                throw new GeneralException('Missing value type');
+            }
 
-			$options = array_replace([
-				'numberPrecision' => $this->numberPrecision,
-				'compressColors'  => ($this->formatter ? $this->formatter->getCompressColors() : false),
-			], $options);
+            $options = array_replace([
+                'numberPrecision' => $this->numberPrecision,
+                'compressColors'  => ($this->formatter ? $this->formatter->getCompressColors() : false),
+            ], $options);
 
-			$valueClass = \LesserPhp\Compiler\Value\AbstractValue::factory($this, $this->coerce, $options, $value);
+            $valueClass = \LesserPhp\Compiler\Value\AbstractValue::factory($this, $this->coerce, $options, $value);
 
-			return $valueClass->getCompiled();
-		} catch (\UnexpectedValueException $e) {
-			throw new GeneralException($e->getMessage());
-		}
-	}
+            return $valueClass->getCompiled();
+        } catch (\UnexpectedValueException $e) {
+            throw new GeneralException($e->getMessage());
+        }
+    }
 
     /**
      * Helper function to get arguments for color manipulation functions.

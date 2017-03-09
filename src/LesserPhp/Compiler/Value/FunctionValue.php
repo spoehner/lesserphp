@@ -17,22 +17,23 @@ namespace LesserPhp\Compiler\Value;
 
 class FunctionValue extends AbstractValue
 {
-	private $name, $args;
+    private $name;
+    private $args;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCompiled()
-	{
-		return $this->name.'('.$this->compiler->compileValue($this->args).')';
-	}
+    /**
+     * @inheritdoc
+     */
+    public function getCompiled()
+    {
+        return $this->name.'('.$this->compiler->compileValue($this->args).')';
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function initializeFromOldFormat(array $value)
-	{
-		$this->name = $value[1];
-		$this->args = $value[2];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function initializeFromOldFormat(array $value)
+    {
+        $this->name = $value[1];
+        $this->args = $value[2];
+    }
 }

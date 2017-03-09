@@ -17,25 +17,25 @@ namespace LesserPhp\Compiler\Value;
 
 class RawColorValue extends AbstractValue
 {
-	private $value;
+    private $value;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCompiled()
-	{
-		if ($this->options['compressColors']) {
-			return $this->compiler->compileValue($this->coerce->coerceColor(['raw_color', $this->value]));
-		}
+    /**
+     * @inheritdoc
+     */
+    public function getCompiled()
+    {
+        if ($this->options['compressColors']) {
+            return $this->compiler->compileValue($this->coerce->coerceColor(['raw_color', $this->value]));
+        }
 
-		return $this->value;
-	}
+        return $this->value;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function initializeFromOldFormat(array $value)
-	{
-		$this->value = $value[1];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function initializeFromOldFormat(array $value)
+    {
+        $this->value = $value[1];
+    }
 }

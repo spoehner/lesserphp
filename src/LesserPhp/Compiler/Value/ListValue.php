@@ -17,33 +17,33 @@ namespace LesserPhp\Compiler\Value;
 
 class ListValue extends AbstractValue
 {
-	private $delimiter;
-	/** @var AbstractValue[] */
-	private $items;
+    private $delimiter;
+    /** @var AbstractValue[] */
+    private $items;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCompiled()
-	{
-		$compiled = [];
-		foreach ($this->items as $item) {
-			$compiled[] = $item->getCompiled();
-		}
+    /**
+     * @inheritdoc
+     */
+    public function getCompiled()
+    {
+        $compiled = [];
+        foreach ($this->items as $item) {
+            $compiled[] = $item->getCompiled();
+        }
 
-		return implode($this->delimiter, $compiled);
-	}
+        return implode($this->delimiter, $compiled);
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function initializeFromOldFormat(array $value)
-	{
-		$this->delimiter = $value[1];
-		$this->items     = [];
+    /**
+     * @inheritdoc
+     */
+    public function initializeFromOldFormat(array $value)
+    {
+        $this->delimiter = $value[1];
+        $this->items     = [];
 
-		foreach ($value[2] as $item) {
-			$this->items[] = self::factory($this->compiler, $this->coerce, $this->options, $item);
-		}
-	}
+        foreach ($value[2] as $item) {
+            $this->items[] = self::factory($this->compiler, $this->coerce, $this->options, $item);
+        }
+    }
 }

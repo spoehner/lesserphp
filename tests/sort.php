@@ -23,15 +23,15 @@ class LesscNormalized extends \LesserPhp\Compiler
         $this->setNumberPrecision(3);
     }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function compileValue(array $value, array $options = [])
-	{
-		$options['compressColors'] = true;
+    /**
+     * @inheritdoc
+     */
+    public function compileValue(array $value, array $options = [])
+    {
+        $options['compressColors'] = true;
 
-		return parent::compileValue($value, $options);
-	}
+        return parent::compileValue($value, $options);
+    }
 }
 
 /**

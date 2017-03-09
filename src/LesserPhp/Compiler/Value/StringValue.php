@@ -17,29 +17,30 @@ namespace LesserPhp\Compiler\Value;
 
 class StringValue extends AbstractValue
 {
-	private $delimiter, $content;
+    private $delimiter;
+    private $content;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCompiled()
-	{
-		$content = $this->content;
-		foreach ($content as &$part) {
-			if (is_array($part)) {
-				$part = $this->compiler->compileValue($part);
-			}
-		}
+    /**
+     * @inheritdoc
+     */
+    public function getCompiled()
+    {
+        $content = $this->content;
+        foreach ($content as &$part) {
+            if (is_array($part)) {
+                $part = $this->compiler->compileValue($part);
+            }
+        }
 
-		return $this->delimiter . implode($content) . $this->delimiter;
-	}
+        return $this->delimiter.implode($content).$this->delimiter;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function initializeFromOldFormat(array $value)
-	{
-		$this->delimiter=$value[1];
-		$this->content=$value[2];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function initializeFromOldFormat(array $value)
+    {
+        $this->delimiter = $value[1];
+        $this->content   = $value[2];
+    }
 }

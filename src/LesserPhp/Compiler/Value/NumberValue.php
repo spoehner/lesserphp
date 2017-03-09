@@ -17,27 +17,28 @@ namespace LesserPhp\Compiler\Value;
 
 class NumberValue extends AbstractValue
 {
-	private $number, $unit;
+    private $number;
+    private $unit;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCompiled()
-	{
-		$num = $this->number;
-		if (isset($this->options['numberPrecision'])) {
-			$num = round($num, $this->options['numberPrecision']);
-		}
+    /**
+     * @inheritdoc
+     */
+    public function getCompiled()
+    {
+        $num = $this->number;
+        if (isset($this->options['numberPrecision'])) {
+            $num = round($num, $this->options['numberPrecision']);
+        }
 
-		return $num.$this->unit;
-	}
+        return $num.$this->unit;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function initializeFromOldFormat(array $value)
-	{
-		$this->number = $value[1];
-		$this->unit   = $value[2];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function initializeFromOldFormat(array $value)
+    {
+        $this->number = $value[1];
+        $this->unit   = $value[2];
+    }
 }

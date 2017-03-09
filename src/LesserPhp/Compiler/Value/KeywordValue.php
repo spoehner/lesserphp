@@ -17,21 +17,21 @@ namespace LesserPhp\Compiler\Value;
 
 class KeywordValue extends AbstractValue
 {
-	private $keyword;
+    private $keyword;
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCompiled()
-	{
-		return $this->keyword;
-	}
+    /**
+     * @inheritdoc
+     */
+    public function getCompiled()
+    {
+        return $this->keyword;
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function initializeFromOldFormat(array $value)
-	{
-		$this->keyword = $value[1];
-	}
+    /**
+     * @inheritdoc
+     */
+    public function initializeFromOldFormat(array $value)
+    {
+        $this->keyword = $value[1];
+    }
 }
