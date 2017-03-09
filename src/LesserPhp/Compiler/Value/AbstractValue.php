@@ -14,21 +14,61 @@ namespace LesserPhp\Compiler\Value;
  *
  * @package LesserPhp
  */
+use LesserPhp\Compiler;
+use LesserPhp\Library\Coerce;
 
 abstract class AbstractValue
 {
+	/** @var Compiler */
+	protected $compiler;
+	/** @var Coerce */
+	protected $coerce;
+
 	protected $options = [
-		'numberPrecision'=>null,
+		'numberPrecision' => null,
+		'compressColors'  => false,
 	];
 
 	/**
 	 * AbstractValue constructor.
 	 *
-	 * @param array $options
+	 * @param Compiler $compiler
+	 * @param Coerce   $coerce
+	 * @param array    $options
 	 */
-	public function __construct(array $options = [])
+	public function __construct(Compiler $compiler, Coerce $coerce, array $options = [])
 	{
-		$this->options = array_replace($this->options, $options);
+		$this->compiler = $compiler;
+		$this->coerce   = $coerce;
+		$this->options  = array_replace($this->options, $options);
+	}
+
+	/**
+	 * @param Compiler $compiler
+	 * @param Coerce   $coerce
+	 * @param array    $options
+	 * @param array    $value
+	 *
+	 * @return self
+	 */
+	public static function factory(Compiler $compiler, Coerce $coerce, array $options, array $value)
+	{
+		$nameParts = explode('_', $value[0]);
+		$camelCase = array_reduce($nameParts, function($carry, $item){
+			return $carry.ucfirst($item);
+		}, '');
+		$valueClassName = 'LesserPhp\Compiler\Value\\'.$camelCase.'Value';
+
+		if (class_exists($valueClassName)) {
+			$valueClass = new $valueClassName($compiler, $coerce, $options);
+			if ($valueClass instanceof self) {
+				$valueClass->initializeFromOldFormat($value);
+
+				return $valueClass;
+			}
+		}
+
+		throw new \UnexpectedValueException('unknown value type: '.$value[0]);
 	}
 
 	/**

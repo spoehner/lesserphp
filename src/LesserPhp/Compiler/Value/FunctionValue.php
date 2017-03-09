@@ -15,21 +15,16 @@ namespace LesserPhp\Compiler\Value;
  * @package LesserPhp
  */
 
-class Number extends AbstractValue
+class FunctionValue extends AbstractValue
 {
-	private $number, $unit;
+	private $name, $args;
 
 	/**
 	 * @inheritdoc
 	 */
 	public function getCompiled()
 	{
-		$num = $this->number;
-		if (isset($this->options['numberPrecision'])) {
-			$num = round($num, $this->options['numberPrecision']);
-		}
-
-		return $num.$this->unit;
+		return $this->name.'('.$this->compiler->compileValue($this->args).')';
 	}
 
 	/**
@@ -37,7 +32,7 @@ class Number extends AbstractValue
 	 */
 	public function initializeFromOldFormat(array $value)
 	{
-		$this->number = $value[1];
-		$this->unit   = $value[2];
+		$this->name = $value[1];
+		$this->args = $value[2];
 	}
 }
