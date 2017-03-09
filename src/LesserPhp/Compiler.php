@@ -1111,33 +1111,34 @@ class Compiler
     }
 
 
-    /**
-     * Compiles a primitive value into a CSS property value.
-     *
-     * Values in lessphp are typed by being wrapped in arrays, their format is
-     * typically:
-     *
-     *     array(type, contents [, additional_contents]*)
-     *
-     * The input is expected to be reduced. This function will not work on
-     * things like expressions and variables.
-     *
-     * @param array $value
-     *
-     * @return string
-     * @throws \LesserPhp\Exception\GeneralException
-     */
-	public function compileValue(array $value)
+	/**
+	 * Compiles a primitive value into a CSS property value.
+	 *
+	 * Values in lessphp are typed by being wrapped in arrays, their format is
+	 * typically:
+	 *
+	 *     array(type, contents [, additional_contents]*)
+	 *
+	 * The input is expected to be reduced. This function will not work on
+	 * things like expressions and variables.
+	 *
+	 * @param array $value
+	 * @param array $options
+	 *
+	 * @return string
+	 * @throws GeneralException
+	 */
+	public function compileValue(array $value, array $options = [])
 	{
 		try {
 			if (!isset($value[0])) {
 				throw new GeneralException('Missing value type');
 			}
 
-			$options = [
+			$options = array_replace([
 				'numberPrecision' => $this->numberPrecision,
 				'compressColors'  => ($this->formatter ? $this->formatter->getCompressColors() : false),
-			];
+			], $options);
 
 			$valueClass = \LesserPhp\Compiler\Value\AbstractValue::factory($this, $this->coerce, $options, $value);
 

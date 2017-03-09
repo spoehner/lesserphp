@@ -23,30 +23,15 @@ class LesscNormalized extends \LesserPhp\Compiler
         $this->setNumberPrecision(3);
     }
 
-    /**
-     * Compiles a primitive value into a CSS property value.
-     *
-     * Values in lessphp are typed by being wrapped in arrays, their format is
-     * typically:
-     *
-     *     array(type, contents [, additional_contents]*)
-     *
-     * The input is expected to be reduced. This function will not work on
-     * things like expressions and variables.
-     *
-     * @param array $value
-     *
-     * @return string
-     * @throws \LesserPhp\Exception\GeneralException
-     */
-    public function compileValue(array $value)
-    {
-        if ($value[0] === 'raw_color') {
-            $value = $this->getCoerce()->coerceColor($value);
-        }
+	/**
+	 * @inheritdoc
+	 */
+	public function compileValue(array $value, array $options = [])
+	{
+		$options['compressColors'] = true;
 
-        return parent::compileValue($value);
-    }
+		return parent::compileValue($value, $options);
+	}
 }
 
 /**
