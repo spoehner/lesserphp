@@ -17,6 +17,9 @@ namespace LesserPhp\Compiler\Value;
 
 class RawColorValue extends AbstractValue
 {
+    /**
+     * @var string
+     */
     private $value;
 
     /**

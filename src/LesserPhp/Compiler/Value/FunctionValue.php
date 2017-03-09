@@ -17,7 +17,14 @@ namespace LesserPhp\Compiler\Value;
 
 class FunctionValue extends AbstractValue
 {
+    /**
+     * @var string
+     */
     private $name;
+
+    /**
+     * @var array
+     */
     private $args;
 
     /**
@@ -25,7 +32,7 @@ class FunctionValue extends AbstractValue
      */
     public function getCompiled()
     {
-        return $this->name.'('.$this->compiler->compileValue($this->args).')';
+        return $this->name . '(' . $this->compiler->compileValue($this->args) . ')';
     }
 
     /**

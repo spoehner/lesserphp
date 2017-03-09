@@ -17,7 +17,14 @@ namespace LesserPhp\Compiler\Value;
 
 class NumberValue extends AbstractValue
 {
+    /**
+     * @var float
+     */
     private $number;
+
+    /**
+     * @var string
+     */
     private $unit;
 
     /**
@@ -30,7 +37,7 @@ class NumberValue extends AbstractValue
             $num = round($num, $this->options['numberPrecision']);
         }
 
-        return $num.$this->unit;
+        return $num . $this->unit;
     }
 
     /**

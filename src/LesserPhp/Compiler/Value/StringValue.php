@@ -17,7 +17,14 @@ namespace LesserPhp\Compiler\Value;
 
 class StringValue extends AbstractValue
 {
+    /**
+     * @var string
+     */
     private $delimiter;
+
+    /**
+     * @var array|string
+     */
     private $content;
 
     /**
@@ -32,7 +39,7 @@ class StringValue extends AbstractValue
             }
         }
 
-        return $this->delimiter.implode($content).$this->delimiter;
+        return $this->delimiter . implode($content) . $this->delimiter;
     }
 
     /**

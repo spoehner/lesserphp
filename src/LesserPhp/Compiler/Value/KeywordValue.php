@@ -17,6 +17,9 @@ namespace LesserPhp\Compiler\Value;
 
 class KeywordValue extends AbstractValue
 {
+    /**
+     * @var string
+     */
     private $keyword;
 
     /**

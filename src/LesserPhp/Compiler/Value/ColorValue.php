@@ -17,9 +17,24 @@ namespace LesserPhp\Compiler\Value;
 
 class ColorValue extends AbstractValue
 {
+    /**
+     * @var int
+     */
     private $red;
+
+    /**
+     * @var int
+     */
     private $green;
+
+    /**
+     * @var int
+     */
     private $blue;
+
+    /**
+     * @var float
+     */
     private $alpha;
 
     /**
@@ -32,7 +47,7 @@ class ColorValue extends AbstractValue
         $blue  = round($this->blue);
 
         if ($this->alpha !== null && $this->alpha != 1) {
-            return 'rgba('.$red.','.$green.','.$blue.','.$this->alpha.')';
+            return 'rgba(' . $red . ',' . $green . ',' . $blue . ',' . $this->alpha . ')';
         }
 
         $hex = sprintf("#%02x%02x%02x", $red, $green, $blue);
@@ -40,7 +55,7 @@ class ColorValue extends AbstractValue
         if ($this->options['compressColors']) {
             // Converting hex color to short notation (e.g. #003399 to #039)
             if ($hex[1] === $hex[2] && $hex[3] === $hex[4] && $hex[5] === $hex[6]) {
-                $hex = '#'.$hex[1].$hex[3].$hex[5];
+                $hex = '#' . $hex[1] . $hex[3] . $hex[5];
             }
         }
 

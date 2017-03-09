@@ -17,8 +17,14 @@ namespace LesserPhp\Compiler\Value;
 
 class ListValue extends AbstractValue
 {
+    /**
+     * @var string
+     */
     private $delimiter;
-    /** @var AbstractValue[] */
+
+    /**
+     * @var AbstractValue[]
+     */
     private $items;
 
     /**

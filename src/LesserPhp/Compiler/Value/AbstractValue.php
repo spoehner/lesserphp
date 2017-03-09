@@ -19,11 +19,19 @@ use LesserPhp\Library\Coerce;
 
 abstract class AbstractValue
 {
-    /** @var Compiler */
+    /**
+     * @var Compiler
+     */
     protected $compiler;
-    /** @var Coerce */
+
+    /**
+     * @var Coerce
+     */
     protected $coerce;
 
+    /**
+     * @var array
+     */
     protected $options = [
         'numberPrecision' => null,
         'compressColors'  => false,
@@ -55,9 +63,9 @@ abstract class AbstractValue
     {
         $nameParts      = explode('_', $value[0]);
         $camelCase      = array_reduce($nameParts, function ($carry, $item) {
-            return $carry.ucfirst($item);
+            return $carry . ucfirst($item);
         }, '');
-        $valueClassName = 'LesserPhp\Compiler\Value\\'.$camelCase.'Value';
+        $valueClassName = 'LesserPhp\Compiler\Value\\' . $camelCase . 'Value';
 
         if (class_exists($valueClassName)) {
             $valueClass = new $valueClassName($compiler, $coerce, $options);
@@ -68,7 +76,7 @@ abstract class AbstractValue
             }
         }
 
-        throw new \UnexpectedValueException('unknown value type: '.$value[0]);
+        throw new \UnexpectedValueException('unknown value type: ' . $value[0]);
     }
 
     /**
