@@ -403,7 +403,7 @@ nav ul {
     /**
      * @param array $tags
      *
-     * @return mixed
+     * @return array
      */
     protected function fixTags(array $tags)
     {
@@ -1761,36 +1761,16 @@ nav ul {
     }
 
     /**
-     * @param null $selectors
-     * @param null $type
+     * @param array|null  $selectors
+     * @param string|null $type
      *
-     * @return \stdClass
+     * @return Block
      */
-    protected function pushBlock($selectors = null, $type = null)
+    protected function pushBlock(array $selectors = null, $type = null)
     {
-        $b = new \stdClass();
-        $b->parent = $this->env;
+        $this->env = new Block($this, self::$nextBlockId++, $this->count, $type, $selectors, $this->env);
 
-        $b->type = $type;
-        $b->id = self::$nextBlockId++;
-
-        $b->isVararg = false; // TODO: kill me from here
-        $b->tags = $selectors;
-
-        $b->props = [];
-        $b->children = [];
-
-        // add a reference to the parser so
-        // we can access the parser to throw errors
-        // or retrieve the sourceName of this block.
-        $b->parser = $this;
-
-        // so we know the position of this block
-        $b->count = $this->count;
-
-        $this->env = $b;
-
-        return $b;
+        return $this->env;
     }
 
     /**
@@ -1798,7 +1778,7 @@ nav ul {
      *
      * @param string $type
      *
-     * @return \stdClass
+     * @return Block
      */
     protected function pushSpecialBlock($type)
     {
