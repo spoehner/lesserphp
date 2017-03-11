@@ -71,20 +71,54 @@ class Block
     /**
      * Block constructor.
      *
+     * @param Parser     $parser
+     * @param int        $id
+     * @param int        $count
+     * @param array|null $tags
+     * @param Block|null $parent
+     */
+    public function __construct(Parser $parser, $id, $count, array $tags = null, Block $parent = null)
+    {
+        $this->parser = $parser;
+        $this->id     = $id;
+        $this->count  = $count;
+        $this->type   = $this->getType();
+        $this->tags   = $tags;
+        $this->parent = $parent;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getType()
+    {
+        return null;
+    }
+
+    /**
      * @param Parser      $parser
      * @param int         $id
      * @param int         $count
      * @param string|null $type
      * @param array|null  $tags
      * @param Block|null  $parent
+     *
+     * @return Block
      */
-    public function __construct(Parser $parser, $id, $count, $type = null, array $tags = null, Block $parent = null)
+    public static function factory(Parser $parser, $id, $count, $type = null, array $tags = null, Block $parent = null)
     {
-        $this->parser = $parser;
-        $this->id     = $id;
-        $this->count  = $count;
-        $this->type   = $type;
-        $this->tags   = $tags;
-        $this->parent = $parent;
+        if ($type === null) {
+            $className = self::class;
+        } else {
+            $className = __NAMESPACE__ . '\Block\\' . ucfirst($type);
+        }
+
+        if (!class_exists($className)) {
+            throw new \UnexpectedValueException("Unknown block type: $type");
+        }
+
+        $block = new $className($parser, $id, $count, $tags, $parent);
+
+        return $block;
     }
 }

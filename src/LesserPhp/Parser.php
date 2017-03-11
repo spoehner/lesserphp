@@ -126,7 +126,7 @@ class Parser
     /**
      * @param string $buffer
      *
-     * @return mixed
+     * @return Block
      * @throws \LesserPhp\Exception\GeneralException
      */
     public function parse($buffer)
@@ -1768,7 +1768,7 @@ nav ul {
      */
     protected function pushBlock(array $selectors = null, $type = null)
     {
-        $this->env = new Block($this, self::$nextBlockId++, $this->count, $type, $selectors, $this->env);
+        $this->env = Block::factory($this, self::$nextBlockId++, $this->count, $type, $selectors, $this->env);
 
         return $this->env;
     }
@@ -1778,7 +1778,7 @@ nav ul {
      *
      * @param string $type
      *
-     * @return Block
+     * @return Block|Block\Directive|Block\Media
      */
     protected function pushSpecialBlock($type)
     {
@@ -1964,9 +1964,14 @@ nav ul {
     protected function handleRulesetDefinition($directiveName)
     {
         //Ruleset Definition
-        // seriously, this || true is required for this statement to work!?
-        if (($this->openString('{', $directiveValue, null, [';']) || true) && $this->literal('{')) {
-            $dir = $this->pushBlock($this->fixTags(['@' . $directiveName]));
+        $this->openString('{', $directiveValue, null, [';']);
+
+        if ($this->literal('{')) {
+            $dir = $this->pushBlock($this->fixTags(['@' . $directiveName]), 'ruleset');
+            if (!$dir instanceof Block\Ruleset) {
+                throw new \RuntimeException('Block factory did not produce a Ruleset');
+            }
+
             $dir->name = $directiveName;
             if ($directiveValue !== null) {
                 $dir->value = $directiveValue;
