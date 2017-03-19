@@ -16,7 +16,6 @@ namespace LesserPhp\Block;
  */
 use LesserPhp\Block;
 
-
 class Directive extends Block
 {
     /**

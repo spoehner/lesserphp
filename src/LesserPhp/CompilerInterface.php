@@ -3,7 +3,6 @@ namespace LesserPhp;
 
 use LesserPhp\Exception\GeneralException;
 
-
 /**
  * The LESS compiler and parser.
  *
@@ -243,4 +242,5 @@ interface CompilerInterface
      * @return bool
      */
     public function isImportDisabled();
+
 }
