@@ -19,7 +19,6 @@ use LesserPhp\Exception\GeneralException;
  */
 class Parser
 {
-
     protected static $nextBlockId = 0; // used to uniquely identify blocks
 
     protected static $precedence = [

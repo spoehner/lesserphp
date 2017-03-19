@@ -242,5 +242,4 @@ interface CompilerInterface
      * @return bool
      */
     public function isImportDisabled();
-
 }
