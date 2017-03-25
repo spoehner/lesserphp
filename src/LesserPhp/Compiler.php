@@ -512,7 +512,11 @@ class Compiler
                     break;
                 case "import":
                     $id = self::$nextImportId++;
-                    $prop[] = $id;
+
+                    if ($prop instanceof Property\ImportProperty)
+                        $prop->setId($id);
+
+                    //$prop[] = $id;
                     $stack[] = $prop;
                     $imports = array_merge($imports, $stack);
                     $other[] = ["import_mixin", $id];
