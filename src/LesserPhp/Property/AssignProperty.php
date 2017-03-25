@@ -45,4 +45,12 @@ class AssignProperty extends \LesserPhp\Property
     {
         return $this->getValue2();
     }
+
+    /**
+     * @param mixed $value
+     */
+    public function setValue($value)
+    {
+        $this->setValue2($value);
+    }
 }

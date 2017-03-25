@@ -136,7 +136,7 @@ abstract class Property implements \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        return (is_int($offset) && $offset >= -1 && $offset <= 3);
+        throw new \RuntimeException('Array access is deprecated! ');
     }
 
     /**
@@ -144,19 +144,7 @@ abstract class Property implements \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        if ($offset === -1) {
-            return $this->getPos();
-        } elseif ($offset === 0) {
-            return $this->getType();
-        } elseif ($offset === 1) {
-            return $this->getValue1();
-        } elseif ($offset === 2) {
-            return $this->getValue2();
-        } elseif ($offset === 3) {
-            return $this->getValue3();
-        } else {
-            throw new \InvalidArgumentException("Unknown offset $offset");
-        }
+        throw new \RuntimeException('Array access is deprecated! ');
     }
 
     /**
@@ -164,12 +152,7 @@ abstract class Property implements \ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        // this only happens for sub-properties
-        if ($offset === 2) {
-            return $this->setValue2($value);
-        } else {
-            throw new \InvalidArgumentException("Unknown offset $offset");
-        }
+        throw new \RuntimeException('Array access is deprecated! ');
     }
 
     /**
@@ -177,6 +160,7 @@ abstract class Property implements \ArrayAccess
      */
     public function offsetUnset($offset)
     {
+        throw new \RuntimeException('Array access is deprecated! ');
     }
 
     /**

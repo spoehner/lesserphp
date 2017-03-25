@@ -203,14 +203,14 @@ class Compiler
     }
 
     /**
-     * @param array $importPath
-     * @param       $parentBlock
-     * @param       $out
+     * @param array     $importPath
+     * @param Block     $parentBlock
+     * @param \stdClass $out
      *
      * @return array|false
      * @throws \LesserPhp\Exception\GeneralException
      */
-    protected function tryImport(array $importPath, $parentBlock, $out)
+    protected function tryImport(array $importPath, Block $parentBlock, \stdClass $out)
     {
         if ($importPath[0] === 'function' && $importPath[1] === 'url') {
             $importPath = $this->flattenList($importPath[2]);
@@ -248,8 +248,8 @@ class Compiler
 
         // set the parents of all the block props
         foreach ($root->props as $prop) {
-            if ($prop[0] === 'block') {
-                $prop[1]->parent = $parentBlock;
+            if ($prop instanceof Property\BlockProperty) {
+                $prop->getChild()->parent = $parentBlock;
             }
         }
 
@@ -441,12 +441,12 @@ class Compiler
     }
 
     /**
-     * @param Block $block
+     * @param Block     $block
      * @param \stdClass $out
      *
      * @throws \LesserPhp\Exception\GeneralException
      */
-    protected function compileProps(Block $block, $out)
+    protected function compileProps(Block $block, \stdClass $out)
     {
         foreach ($this->sortProps($block->props) as $prop) {
             $this->compileProp($prop, $block, $out);
@@ -1064,7 +1064,7 @@ class Compiler
                 $mixins = $this->findBlocks($block, $path, $orderedArgs, $keywordArgs);
 
                 if ($mixins === null) {
-                    $block->parser->throwError("{$prop[1][0]} is undefined", $block->count);
+                    $block->parser->throwError($prop->getPath()[0].' is undefined', $block->count);
                 }
 
                 if (strpos($path[0], "$") === 0) {
@@ -1102,7 +1102,7 @@ class Compiler
                             $subProp instanceof Property\AssignProperty &&
                             !$subProp->nameHasPrefix($this->vPrefix)
                         ) {
-                            $subProp[2] = ['list', ' ', [$subProp[2], ['keyword', $suffix]]];
+                            $subProp->setValue(['list', ' ', [$subProp->getValue(), ['keyword', $suffix]]]);
                         }
 
                         $this->compileProp($subProp, $mixin, $out);
@@ -1121,7 +1121,7 @@ class Compiler
                 return;
 
             default:
-                $block->parser->throwError("unknown op: {$prop[0]}\n", $block->count);
+                $block->parser->throwError("unknown op: {$prop->getType()}\n", $block->count);
         }
     }
 
