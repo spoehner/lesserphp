@@ -23,7 +23,7 @@ class BlockProperty extends \LesserPhp\Property
     /**
      * @return \LesserPhp\Block
      */
-    public function getChild()
+    public function getBlock()
     {
         return $this->getValue1();
     }

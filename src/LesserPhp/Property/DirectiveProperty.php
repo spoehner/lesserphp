@@ -18,7 +18,7 @@ namespace LesserPhp\Property;
  * @package LesserPhp
  */
 
-class DirectiveProperty extends \LesserPhp\Property
+class DirectiveProperty extends \LesserPhp\Property implements CanCompile
 {
     /**
      * @return string
@@ -34,5 +34,16 @@ class DirectiveProperty extends \LesserPhp\Property
     public function getValue()
     {
         return $this->getValue2();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function compile(\LesserPhp\Compiler $compiler)
+    {
+        $cv = $compiler->compileValue($compiler->reduce($this->getValue()));
+
+        // Format: '@name value;'
+        return $compiler->getVPrefix() . $this->getName() . ' ' . $cv . ';';
     }
 }

@@ -18,23 +18,16 @@ namespace LesserPhp\Property;
  * @package LesserPhp
  */
 
-class RawProperty extends \LesserPhp\Property implements CanCompile
+/**
+ * Interface CanCompile
+ * Implemented by properties, that can compile themselves.
+ */
+interface CanCompile
 {
     /**
+     * @param \LesserPhp\Compiler $compiler
+     *
      * @return mixed
      */
-    public function getValue()
-    {
-        return $this->getValue1();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function compile(\LesserPhp\Compiler $compiler)
-    {
-        unset($compiler);
-
-        return $this->getValue();
-    }
+    public function compile(\LesserPhp\Compiler $compiler);
 }

@@ -249,7 +249,7 @@ class Compiler
         // set the parents of all the block props
         foreach ($root->props as $prop) {
             if ($prop instanceof Property\BlockProperty) {
-                $prop->getChild()->parent = $parentBlock;
+                $prop->getBlock()->parent = $parentBlock;
             }
         }
 
@@ -487,7 +487,7 @@ class Compiler
      * @param Property[] $props
      * @param bool       $split
      *
-     * @return array
+     * @return Property[]
      */
     protected function sortProps(array $props, $split = false)
     {
@@ -972,42 +972,27 @@ class Compiler
     {
         $this->sourceLoc = ($prop->hasPos() ? $prop->getPos() : -1);
 
+        if ($prop instanceof Property\CanCompile) {
+            $out->lines[] = $prop->compile($this);
+
+            return;
+        }
+
         switch (true) {
             case $prop instanceof Property\AssignProperty:
-                $name = $prop->getName();
-
                 if ($prop->nameHasPrefix($this->vPrefix)) {
-                    $this->set($name, $prop->getValue());
-
-                    return;
+                    $this->set($prop->getName(), $prop->getValue());
+                } else {
+                    $out->lines[] = $this->formatter->property(
+                        $prop->getName(),
+                        $this->compileValue($this->reduce($prop->getValue()))
+                    );
                 }
-
-                $out->lines[] = $this->formatter->property(
-                    $name,
-                    $this->compileValue($this->reduce($prop->getValue()))
-                );
 
                 return;
 
             case $prop instanceof Property\BlockProperty:
-                $this->compileBlock($prop->getChild());
-
-                return;
-
-            case $prop instanceof Property\RawProperty:
-                $out->lines[] = $prop->getValue();
-
-                return;
-
-            case $prop instanceof Property\CommentProperty:
-                $out->lines[] = $prop->getComment();
-
-                return;
-
-            case $prop instanceof Property\DirectiveProperty:
-                $cv = $this->compileValue($this->reduce($prop->getValue()));
-                // '@name value;'
-                $out->lines[] = $this->vPrefix . $prop->getName() . ' ' . $cv . ';';
+                $this->compileBlock($prop->getBlock());
 
                 return;
 
@@ -1062,7 +1047,6 @@ class Compiler
                 }
 
                 $mixins = $this->findBlocks($block, $path, $orderedArgs, $keywordArgs);
-
                 if ($mixins === null) {
                     $block->parser->throwError($prop->getPath()[0].' is undefined', $block->count);
                 }
@@ -1097,7 +1081,6 @@ class Compiler
                     }
 
                     foreach ($this->sortProps($mixin->props) as $subProp) {
-                        /** @var Property $subProp */
                         if ($suffix !== null &&
                             $subProp instanceof Property\AssignProperty &&
                             !$subProp->nameHasPrefix($this->vPrefix)

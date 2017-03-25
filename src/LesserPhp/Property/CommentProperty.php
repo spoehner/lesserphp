@@ -18,7 +18,7 @@ namespace LesserPhp\Property;
  * @package LesserPhp
  */
 
-class CommentProperty extends \LesserPhp\Property
+class CommentProperty extends \LesserPhp\Property implements CanCompile
 {
     /**
      * @return string
@@ -26,5 +26,15 @@ class CommentProperty extends \LesserPhp\Property
     public function getComment()
     {
         return $this->getValue1();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function compile(\LesserPhp\Compiler $compiler)
+    {
+        unset($compiler);
+
+        return $this->getComment();
     }
 }
