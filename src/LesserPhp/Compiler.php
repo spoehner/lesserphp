@@ -277,12 +277,12 @@ class Compiler
     }
 
     /**
-     * @param array  $props
-     * @param        $block
-     * @param        $out
-     * @param string $importDir
+     * @param Property[] $props
+     * @param Block      $block
+     * @param \stdClass  $out
+     * @param string     $importDir
      */
-    protected function compileImportedProps(array $props, $block, $out, $importDir)
+    protected function compileImportedProps(array $props, Block $block, \stdClass $out, $importDir)
     {
         $oldSourceParser = $this->sourceParser;
 
@@ -294,7 +294,7 @@ class Compiler
             $this->compileProp($prop, $block, $out);
         }
 
-        $this->importDirs = $oldImport;
+        $this->importDirs   = $oldImport;
         $this->sourceParser = $oldSourceParser;
     }
 
@@ -484,51 +484,52 @@ class Compiler
     }
 
     /**
-     * @param array $props
-     * @param bool  $split
+     * @param Property[] $props
+     * @param bool       $split
      *
      * @return array
      */
     protected function sortProps(array $props, $split = false)
     {
-        $vars = [];
+        $vars    = [];
         $imports = [];
-        $other = [];
-        $stack = [];
+        $other   = [];
+        $stack   = [];
 
         foreach ($props as $prop) {
-            switch ($prop[0]) {
-                case "comment":
+            switch (true) {
+                case $prop instanceof Property\CommentProperty:
                     $stack[] = $prop;
                     break;
-                case "assign":
+
+                case $prop instanceof Property\AssignProperty:
                     $stack[] = $prop;
-                    if (isset($prop[1][0]) && $prop[1][0] == $this->vPrefix) {
+                    if ($prop->nameHasPrefix($this->vPrefix)) {
                         $vars = array_merge($vars, $stack);
                     } else {
                         $other = array_merge($other, $stack);
                     }
                     $stack = [];
                     break;
-                case "import":
+
+                case $prop instanceof Property\ImportProperty:
                     $id = self::$nextImportId++;
+                    $prop->setId($id);
 
-                    if ($prop instanceof Property\ImportProperty)
-                        $prop->setId($id);
-
-                    //$prop[] = $id;
                     $stack[] = $prop;
                     $imports = array_merge($imports, $stack);
-                    $other[] = ["import_mixin", $id];
-                    $stack = [];
+                    $other[] = Property::factoryFromOldFormat($this->parser, ["import_mixin", $id]);
+                    $stack   = [];
                     break;
+
                 default:
                     $stack[] = $prop;
-                    $other = array_merge($other, $stack);
-                    $stack = [];
+                    $other   = array_merge($other, $stack);
+                    $stack   = [];
                     break;
             }
         }
+
         $other = array_merge($other, $stack);
 
         if ($split) {
@@ -961,172 +962,166 @@ class Compiler
     /**
      * compile a prop and update $lines or $blocks appropriately
      *
-     * @param $prop
-     * @param Block $block
-     * @param $out
+     * @param Property  $prop
+     * @param Block     $block
+     * @param \stdClass $out
      *
      * @throws \LesserPhp\Exception\GeneralException
      */
-    protected function compileProp($prop, Block $block, $out)
+    protected function compileProp(Property $prop, Block $block, \stdClass $out)
     {
-        if ($prop instanceof Property) {
-            $this->sourceLoc = ($prop->hasPos() ? $prop->getPos() : -1);
+        $this->sourceLoc = ($prop->hasPos() ? $prop->getPos() : -1);
 
-            switch (true) {
-                case $prop instanceof Property\AssignProperty:
-                    $name = $prop->getName();
+        switch (true) {
+            case $prop instanceof Property\AssignProperty:
+                $name = $prop->getName();
 
-                    if ($prop->nameHasPrefix($this->vPrefix)) {
-                        $this->set($name, $prop->getValue());
+                if ($prop->nameHasPrefix($this->vPrefix)) {
+                    $this->set($name, $prop->getValue());
 
-                        return;
+                    return;
+                }
+
+                $out->lines[] = $this->formatter->property(
+                    $name,
+                    $this->compileValue($this->reduce($prop->getValue()))
+                );
+
+                return;
+
+            case $prop instanceof Property\BlockProperty:
+                $this->compileBlock($prop->getChild());
+
+                return;
+
+            case $prop instanceof Property\RawProperty:
+                $out->lines[] = $prop->getValue();
+
+                return;
+
+            case $prop instanceof Property\CommentProperty:
+                $out->lines[] = $prop->getComment();
+
+                return;
+
+            case $prop instanceof Property\DirectiveProperty:
+                $cv = $this->compileValue($this->reduce($prop->getValue()));
+                // '@name value;'
+                $out->lines[] = $this->vPrefix . $prop->getName() . ' ' . $cv . ';';
+
+                return;
+
+            case $prop instanceof Property\ImportProperty:
+                $importPath = $this->reduce($prop->getPath());
+                $result     = $this->tryImport($importPath, $block, $out);
+                if ($result === false) {
+                    $result = [false, "@import " . $this->compileValue($importPath) . ";"];
+                }
+                $this->env->addImports($prop->getId(), $result);
+
+                return;
+
+            case $prop instanceof Property\ImportMixinProperty:
+                $import = $this->env->getImports($prop->getId());
+                if ($import[0] === false) {
+                    if (isset($import[1])) {
+                        $out->lines[] = $import[1];
                     }
+                } else {
+                    $bottom    = $import[1];
+                    $importDir = $import[3];
+                    $this->compileImportedProps($bottom, $block, $out, $importDir);
+                }
 
-                    $out->lines[] = $this->formatter->property(
-                        $name,
-                        $this->compileValue($this->reduce($prop->getValue()))
-                    );
+                return;
 
-                    return;
+            case $prop instanceof Property\RulesetProperty:
+            case $prop instanceof Property\MixinProperty:
+                $path   = $prop->getPath();
+                $args   = $prop->getArgs();
+                $suffix = $prop->getSuffix();
 
-                case $prop instanceof Property\BlockProperty:
-                    $this->compileBlock($prop->getChild());
-
-                    return;
-
-                case $prop instanceof Property\RawProperty:
-                    $out->lines[] = $prop->getValue();
-
-                    return;
-
-                case $prop instanceof Property\CommentProperty:
-                    $out->lines[] = $prop->getComment();
-
-                    return;
-
-                case $prop instanceof Property\DirectiveProperty:
-                    $cv           = $this->compileValue($this->reduce($prop->getValue()));
-                    // '@name value;'
-                    $out->lines[] = $this->vPrefix . $prop->getName() . ' ' . $cv . ';';
-
-                    return;
-
-                case $prop instanceof Property\ImportProperty:
-                    $importPath = $this->reduce($prop->getPath());
-                    $result     = $this->tryImport($importPath, $block, $out);
-                    if ($result === false) {
-                        $result = [false, "@import " . $this->compileValue($importPath) . ";"];
-                    }
-                    $this->env->addImports($prop->getId(), $result);
-
-                    return;
-
-                case $prop instanceof Property\ImportMixinProperty:
-                    $import = $this->env->getImports($prop->getId());
-                    if ($import[0] === false) {
-                        if (isset($import[1])) {
-                            $out->lines[] = $import[1];
-                        }
-                    } else {
-                        $bottom    = $import[1];
-                        $importDir = $import[3];
-                        $this->compileImportedProps($bottom, $block, $out, $importDir);
-                    }
-
-                    return;
-
-                case $prop instanceof Property\RulesetProperty:
-                case $prop instanceof Property\MixinProperty:
-                    $path=$prop->getPath();
-                    $args = $prop->getArgs();
-                    $suffix=$prop->getSuffix();
-
-                    $orderedArgs = [];
-                    $keywordArgs = [];
-                    foreach ($args as $arg) {
-                        switch ($arg[0]) {
-                            case "arg":
-                                if (!isset($arg[2])) {
-                                    $orderedArgs[] = $this->reduce(["variable", $arg[1]]);
-                                } else {
-                                    $keywordArgs[$arg[1]] = $this->reduce($arg[2]);
-                                }
-                                break;
-
-                            case "lit":
-                                $orderedArgs[] = $this->reduce($arg[1]);
-                                break;
-                            default:
-                                throw new GeneralException("Unknown arg type: " . $arg[0]);
-                        }
-                    }
-
-                    $mixins = $this->findBlocks($block, $path, $orderedArgs, $keywordArgs);
-
-                    if ($mixins === null) {
-                        $block->parser->throwError("{$prop[1][0]} is undefined", $block->count);
-                    }
-
-                    if (strpos($path[0], "$") === 0) {
-                        //Use Ruleset Logic - Only last element
-                        $mixins = [array_pop($mixins)];
-                    }
-
-                    foreach ($mixins as $mixin) {
-                        if ($mixin === $block && !$orderedArgs) {
-                            continue;
-                        }
-
-                        $haveScope = false;
-                        if (isset($mixin->parent->scope)) {
-                            $haveScope = true;
-                            $mixinParentEnv = $this->pushEnv($this->env);
-                            $mixinParentEnv->storeParent = $mixin->parent->scope;
-                        }
-
-                        $haveArgs = false;
-                        if (isset($mixin->args)) {
-                            $haveArgs = true;
-                            $this->pushEnv($this->env);
-                            $this->zipSetArgs($mixin->args, $orderedArgs, $keywordArgs);
-                        }
-
-                        $oldParent = $mixin->parent;
-                        if ($mixin != $block) {
-                            $mixin->parent = $block;
-                        }
-
-                        foreach ($this->sortProps($mixin->props) as $subProp) {
-                            /** @var Property $subProp */
-                            if ($suffix !== null &&
-                                $subProp instanceof Property\AssignProperty &&
-                                !$subProp->nameHasPrefix($this->vPrefix)
-                            ) {
-                                $subProp[2] = ['list', ' ', [$subProp[2], ['keyword', $suffix]]];
+                $orderedArgs = [];
+                $keywordArgs = [];
+                foreach ($args as $arg) {
+                    switch ($arg[0]) {
+                        case "arg":
+                            if (!isset($arg[2])) {
+                                $orderedArgs[] = $this->reduce(["variable", $arg[1]]);
+                            } else {
+                                $keywordArgs[$arg[1]] = $this->reduce($arg[2]);
                             }
+                            break;
 
-                            $this->compileProp($subProp, $mixin, $out);
-                        }
+                        case "lit":
+                            $orderedArgs[] = $this->reduce($arg[1]);
+                            break;
+                        default:
+                            throw new GeneralException("Unknown arg type: " . $arg[0]);
+                    }
+                }
 
-                        $mixin->parent = $oldParent;
+                $mixins = $this->findBlocks($block, $path, $orderedArgs, $keywordArgs);
 
-                        if ($haveArgs) {
-                            $this->popEnv();
-                        }
-                        if ($haveScope) {
-                            $this->popEnv();
-                        }
+                if ($mixins === null) {
+                    $block->parser->throwError("{$prop[1][0]} is undefined", $block->count);
+                }
+
+                if (strpos($path[0], "$") === 0) {
+                    //Use Ruleset Logic - Only last element
+                    $mixins = [array_pop($mixins)];
+                }
+
+                foreach ($mixins as $mixin) {
+                    if ($mixin === $block && !$orderedArgs) {
+                        continue;
                     }
 
-                   return;
+                    $haveScope = false;
+                    if (isset($mixin->parent->scope)) {
+                        $haveScope                   = true;
+                        $mixinParentEnv              = $this->pushEnv($this->env);
+                        $mixinParentEnv->storeParent = $mixin->parent->scope;
+                    }
 
-                default:
-                    $block->parser->throwError("unknown op: {$prop[0]}\n", $block->count);
-            }
-        } else {
-            $property = Property::factoryFromOldFormat($this->parser, $prop);
-            $this->compileProp($property, $block, $out);
-            return;
+                    $haveArgs = false;
+                    if (isset($mixin->args)) {
+                        $haveArgs = true;
+                        $this->pushEnv($this->env);
+                        $this->zipSetArgs($mixin->args, $orderedArgs, $keywordArgs);
+                    }
+
+                    $oldParent = $mixin->parent;
+                    if ($mixin != $block) {
+                        $mixin->parent = $block;
+                    }
+
+                    foreach ($this->sortProps($mixin->props) as $subProp) {
+                        /** @var Property $subProp */
+                        if ($suffix !== null &&
+                            $subProp instanceof Property\AssignProperty &&
+                            !$subProp->nameHasPrefix($this->vPrefix)
+                        ) {
+                            $subProp[2] = ['list', ' ', [$subProp[2], ['keyword', $suffix]]];
+                        }
+
+                        $this->compileProp($subProp, $mixin, $out);
+                    }
+
+                    $mixin->parent = $oldParent;
+
+                    if ($haveArgs) {
+                        $this->popEnv();
+                    }
+                    if ($haveScope) {
+                        $this->popEnv();
+                    }
+                }
+
+                return;
+
+            default:
+                $block->parser->throwError("unknown op: {$prop[0]}\n", $block->count);
         }
     }
 
