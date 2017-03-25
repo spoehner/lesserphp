@@ -18,14 +18,14 @@ namespace LesserPhp\Property;
  * @package LesserPhp
  */
 
-class ImportProperty extends \LesserPhp\Property
+class ImportMixinProperty extends \LesserPhp\Property
 {
     /**
      * @return string
      */
-    public function getPath()
+    public function getType()
     {
-        return $this->getValue1();
+        return 'import_mixin';
     }
 
     /**
@@ -33,14 +33,6 @@ class ImportProperty extends \LesserPhp\Property
      */
     public function getId()
     {
-        return $this->getValue2();
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId($id)
-    {
-        $this->setValue2($id);
+        return $this->getValue1();
     }
 }

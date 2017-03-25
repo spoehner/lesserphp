@@ -18,29 +18,13 @@ namespace LesserPhp\Property;
  * @package LesserPhp
  */
 
-class ImportProperty extends \LesserPhp\Property
+class RawProperty extends \LesserPhp\Property
 {
     /**
-     * @return string
+     * @return mixed
      */
-    public function getPath()
+    public function getValue()
     {
         return $this->getValue1();
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->getValue2();
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId($id)
-    {
-        $this->setValue2($id);
     }
 }

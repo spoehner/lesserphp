@@ -20,5 +20,29 @@ namespace LesserPhp\Property;
 
 class AssignProperty extends \LesserPhp\Property
 {
+    /**
+     * @param string $prefixToCheck Single character to check.
+     *
+     * @return bool
+     */
+    public function nameHasPrefix($prefixToCheck)
+    {
+        return ($this->getName() && $this->getName()[0] === $prefixToCheck);
+    }
 
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->getValue1();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->getValue2();
+    }
 }

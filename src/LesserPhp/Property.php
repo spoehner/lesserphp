@@ -76,9 +76,17 @@ abstract class Property implements \ArrayAccess
     }
 
     /**
+     * @return bool
+     */
+    public function hasPos()
+    {
+        return ($this->pos !== null);
+    }
+
+    /**
      * @return mixed
      */
-    public function getValue1()
+    protected function getValue1()
     {
         return $this->value1;
     }
@@ -86,7 +94,7 @@ abstract class Property implements \ArrayAccess
     /**
      * @param mixed $value
      */
-    public function setValue1($value)
+    protected function setValue1($value)
     {
         $this->value1 = $value;
     }
@@ -94,7 +102,7 @@ abstract class Property implements \ArrayAccess
     /**
      * @return mixed
      */
-    public function getValue2()
+    protected function getValue2()
     {
         return $this->value2;
     }
@@ -102,7 +110,7 @@ abstract class Property implements \ArrayAccess
     /**
      * @param mixed $value
      */
-    public function setValue2($value)
+    protected function setValue2($value)
     {
         $this->value2 = $value;
     }
@@ -110,7 +118,7 @@ abstract class Property implements \ArrayAccess
     /**
      * @return mixed
      */
-    public function getValue3()
+    protected function getValue3()
     {
         return $this->value3;
     }
@@ -118,7 +126,7 @@ abstract class Property implements \ArrayAccess
     /**
      * @param mixed $value
      */
-    public function setValue3($value)
+    protected function setValue3($value)
     {
         $this->value3 = $value;
     }
@@ -183,6 +191,7 @@ abstract class Property implements \ArrayAccess
      */
     public static function factory(Parser $parser, $type, $pos, $value1, $value2 = null, $value3 = null)
     {
+        $type = implode('', array_map('ucfirst', explode('_', $type)));
         $className = __NAMESPACE__ . '\Property\\' . ucfirst($type) . 'Property';
 
         if (!class_exists($className)) {
@@ -198,5 +207,38 @@ abstract class Property implements \ArrayAccess
         $property->setValue3($value3);
 
         return $property;
+    }
+
+    public static function factoryFromOldFormat(Parser $parser, array $prop, $pos = null)
+    {
+        /*
+         * A property array looks like this:
+         * [-1] => optional position
+         * [0]  => type
+         * [1]  => value
+         * [2]  => optional more information
+         * [3]  => optional more information
+         *
+         * 0 and 1 are always present
+         * only comments have the simplest form with only 1 value
+         */
+
+        if (!isset($prop[0], $prop[1])) {
+            throw new \UnexpectedValueException('Too few property information given.');
+        }
+
+        $type   = $prop[0];
+        $value1 = $prop[1];
+        $value2 = null;
+        $value3 = null;
+
+        if (isset($prop[2])) {
+            $value2 = $prop[2];
+        }
+        if (isset($prop[3])) {
+            $value3 = $prop[3];
+        }
+
+        return self::factory($parser, $type, $pos, $value1, $value2, $value3);
     }
 }

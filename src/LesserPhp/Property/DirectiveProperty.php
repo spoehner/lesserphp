@@ -20,5 +20,19 @@ namespace LesserPhp\Property;
 
 class DirectiveProperty extends \LesserPhp\Property
 {
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->getValue1();
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->getValue2();
+    }
 }

@@ -20,5 +20,11 @@ namespace LesserPhp\Property;
 
 class CommentProperty extends \LesserPhp\Property
 {
-
+    /**
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->getValue1();
+    }
 }

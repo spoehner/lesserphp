@@ -20,5 +20,27 @@ namespace LesserPhp\Property;
 
 class MixinProperty extends \LesserPhp\Property
 {
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->getValue1();
+    }
 
+    /**
+     * @return array
+     */
+    public function getArgs()
+    {
+        return (array)$this->getValue2();
+    }
+
+    /**
+     * @return string
+     */
+    public function getSuffix()
+    {
+        return $this->getValue3();
+    }
 }

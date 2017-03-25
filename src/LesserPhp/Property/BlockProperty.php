@@ -20,5 +20,11 @@ namespace LesserPhp\Property;
 
 class BlockProperty extends \LesserPhp\Property
 {
-
+    /**
+     * @return \LesserPhp\Block
+     */
+    public function getChild()
+    {
+        return $this->getValue1();
+    }
 }

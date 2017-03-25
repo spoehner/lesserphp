@@ -18,29 +18,7 @@ namespace LesserPhp\Property;
  * @package LesserPhp
  */
 
-class ImportProperty extends \LesserPhp\Property
+class RulesetProperty extends MixinProperty
 {
-    /**
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->getValue1();
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->getValue2();
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId($id)
-    {
-        $this->setValue2($id);
-    }
+    // this is just an alias
 }

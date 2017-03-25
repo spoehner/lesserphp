@@ -1796,36 +1796,7 @@ nav ul {
             $prop[-1] = $pos;
         }
 
-
-        /*
-         * A property array looks like this:
-         * [-1] => optional position
-         * [0]  => type
-         * [1]  => value
-         * [2]  => optional more information
-         * [3]  => optional more information
-         *
-         * 0 and 1 are always present
-         * only comments have the simplest form with only 1 value
-         */
-
-        if (!isset($prop[0], $prop[1])) {
-            throw new \UnexpectedValueException('Too few property information given.');
-        }
-
-        $type   = $prop[0];
-        $value1 = $prop[1];
-        $value2 = null;
-        $value3 = null;
-
-        if (isset($prop[2])) {
-            $value2 = $prop[2];
-        }
-        if (isset($prop[3])) {
-            $value3 = $prop[3];
-        }
-
-        $property = Property::factory($this, $type, $pos, $value1, $value2, $value3);
+        $property = Property::factoryFromOldFormat($this, $prop, $pos);
 
         $this->env->props[] = $property;
     }
