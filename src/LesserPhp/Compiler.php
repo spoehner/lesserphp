@@ -518,7 +518,7 @@ class Compiler
 
                     $stack[] = $prop;
                     $imports = array_merge($imports, $stack);
-                    $other[] = Property::factoryFromOldFormat($this->parser, ["import_mixin", $id]);
+                    $other[] = Property::factoryFromOldFormat(["import_mixin", $id]);
                     $stack   = [];
                     break;
 

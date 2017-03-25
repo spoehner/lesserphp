@@ -1796,7 +1796,7 @@ nav ul {
             $prop[-1] = $pos;
         }
 
-        $property = Property::factoryFromOldFormat($this, $prop, $pos);
+        $property = Property::factoryFromOldFormat($prop, $pos);
 
         $this->env->props[] = $property;
     }

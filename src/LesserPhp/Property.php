@@ -48,13 +48,11 @@ abstract class Property implements \ArrayAccess
     /**
      * Property constructor.
      *
-     * @param Parser   $parser
      * @param int|null $pos
      * @param mixed    $value1
      */
-    public function __construct(Parser $parser, $pos, $value1)
+    public function __construct($pos, $value1)
     {
-        $this->parser = $parser;
         $this->pos    = $pos;
         $this->value1 = $value1;
     }
@@ -64,7 +62,7 @@ abstract class Property implements \ArrayAccess
      */
     public function getType()
     {
-        return strtolower(str_replace([__NAMESPACE__.'\\', '\\', 'Property'], '', get_class($this)));
+        return strtolower(str_replace([__NAMESPACE__ . '\\', '\\', 'Property'], '', get_class($this)));
     }
 
     /**
@@ -164,7 +162,6 @@ abstract class Property implements \ArrayAccess
     }
 
     /**
-     * @param Parser     $parser
      * @param string     $type
      * @param int|null   $pos
      * @param mixed      $value1
@@ -173,16 +170,16 @@ abstract class Property implements \ArrayAccess
      *
      * @return self
      */
-    public static function factory(Parser $parser, $type, $pos, $value1, $value2 = null, $value3 = null)
+    public static function factory($type, $pos, $value1, $value2 = null, $value3 = null)
     {
-        $type = implode('', array_map('ucfirst', explode('_', $type)));
+        $type      = implode('', array_map('ucfirst', explode('_', $type)));
         $className = __NAMESPACE__ . '\Property\\' . ucfirst($type) . 'Property';
 
         if (!class_exists($className)) {
             throw new \UnexpectedValueException("Unknown property type: $type");
         }
 
-        $property = new $className($parser, $pos, $value1);
+        $property = new $className($pos, $value1);
         if (!$property instanceof self) {
             throw new \RuntimeException("$className must extend " . self::class);
         }
@@ -193,7 +190,13 @@ abstract class Property implements \ArrayAccess
         return $property;
     }
 
-    public static function factoryFromOldFormat(Parser $parser, array $prop, $pos = null)
+    /**
+     * @param array    $prop
+     * @param int|null $pos
+     *
+     * @return Property
+     */
+    public static function factoryFromOldFormat(array $prop, $pos = null)
     {
         /*
          * A property array looks like this:
@@ -223,6 +226,6 @@ abstract class Property implements \ArrayAccess
             $value3 = $prop[3];
         }
 
-        return self::factory($parser, $type, $pos, $value1, $value2, $value3);
+        return self::factory($type, $pos, $value1, $value2, $value3);
     }
 }
